@@ -2,6 +2,7 @@ package io.hhplus.tdd.point;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +13,8 @@ public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
+    @Autowired
+    private PointService pointService;
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
      */
@@ -19,7 +22,9 @@ public class PointController {
     public UserPoint point(
             @PathVariable long id
     ) {
-        return new UserPoint(0, 0, 0);
+        System.out.println("point");
+        log.debug("point log");
+        return pointService.lookup(id);
     }
 
     /**
@@ -29,7 +34,10 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
+        List<PointHistory> historyVal = pointService.history(id);
+
+//        log.debug("history: "+historyVal.get(0));
+        return historyVal;
     }
 
     /**
@@ -40,17 +48,22 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+
+        UserPoint changeVal = pointService.charge(id,amount);
+        log.error("charge: "+changeVal.id()+" "+changeVal.point());
+        System.out.println("charge");
+        return changeVal;
     }
 
     /**
      * TODO - 특정 유저의 포인트를 사용하는 기능을 작성해주세요.
      */
     @PatchMapping("{id}/use")
-    public UserPoint use(
+    public synchronized UserPoint use(
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+
+        return pointService.use(id,amount);
     }
 }

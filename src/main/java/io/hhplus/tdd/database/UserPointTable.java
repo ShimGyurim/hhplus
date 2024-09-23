@@ -12,7 +12,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class UserPointTable {
-
+    //throttle
+    //selectById
+    //insertOrUpdate
     private final Map<Long, UserPoint> table = new HashMap<>();
 
     public UserPoint selectById(Long id) {

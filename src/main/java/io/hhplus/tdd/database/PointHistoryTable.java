@@ -14,6 +14,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class PointHistoryTable {
+    // 삽입 insert
+    // selectAllByUserId
+    // throttle
     private final List<PointHistory> table = new ArrayList<>();
     private long cursor = 1;
 
