@@ -42,7 +42,7 @@ public class PointService {
         if (amount < 0 ) throw new RuntimeException("충전량이 이상합니다");
 
         ReentrantLock lock = locks.computeIfAbsent(id, k -> new ReentrantLock());
-        lock.lock();
+        lock.lock(); //use와 동일한 lock 사용
 
         UserPoint userPoint = userPointTable.selectById(id);
         try {
@@ -58,6 +58,9 @@ public class PointService {
     //사용 use
     public UserPoint use(long id, long amount) {
         UserPoint userPoint = userPointTable.selectById(id);
+
+        ReentrantLock lock = locks.computeIfAbsent(id, k -> new ReentrantLock());
+        lock.lock(); // charge 와 use 동일한 lock 사용
 
         try {
             long tempval = userPoint.point()-amount;
