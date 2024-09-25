@@ -59,7 +59,7 @@ public void from100charge100success() {
 }    
 
 @Test
-public void from() {
+public void from100() {
     // Given
     long id = 1L;
     long amount = 200L;
