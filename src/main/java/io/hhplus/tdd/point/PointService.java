@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Service
@@ -19,66 +22,90 @@ public class PointService {
     @Autowired
     private UserPointTable userPointTable;
 
-    private ReentrantLock lock = new ReentrantLock();
-
     private final ConcurrentHashMap<Long, ReentrantLock> locks = new ConcurrentHashMap<>();
 
-    /*
-    amount 가 마이너스
-    amount 가 0
-    selectById 가
-     */
+
     //조회 point
     public UserPoint lookup(long id) {
-        return userPointTable.selectById(id);
+        UserPoint userPoint = userPointTable.selectById(id);
+        PointServiceValidator.validateUserPoint(userPoint);
+        return userPoint;
     }
     ///충전,사용내역조회 history
 
     public List<PointHistory> history(long id) {
-        return pointHistoryTable.selectAllByUserId(id);
+        List<PointHistory> object = pointHistoryTable.selectAllByUserId(id);
+        if(object == null) throw new RuntimeException("객체가 없습니다.");
+        if(object.size() <= 0) throw new RuntimeException("리턴 데이터 없음");
+        return object;
     }
     //충전
     public UserPoint charge(long id, long amount) {
-        if (amount < 0 ) throw new RuntimeException("충전량이 이상합니다");
+        PointServiceValidator.validateAmount(amount);
 
         ReentrantLock lock = locks.computeIfAbsent(id, k -> new ReentrantLock());
         lock.lock(); //use와 동일한 lock 사용
 
         UserPoint userPoint = userPointTable.selectById(id);
-        try {
+        PointServiceValidator.validateUserPoint(userPoint);
 
-            userPoint = userPointTable.insertOrUpdate(id,userPoint.point()+amount);
-            pointHistoryTable.insert(id,amount,TransactionType.CHARGE,userPoint.updateMillis());
+        UserPoint userPointUpd = null;
+        long tempval = userPoint.point()+amount;
+        try {
+            userPointUpd = userPointTable.insertOrUpdate(id,userPoint.point()+amount);
+            pointHistoryTable.insert(id,userPoint.point()+amount,TransactionType.CHARGE,userPoint.updateMillis());
         } finally {
             lock.unlock();
         }
-
-        return userPoint;
+        return new UserPoint(userPoint.id(), tempval,userPointUpd.updateMillis());
     }
+
     //사용 use
     public UserPoint use(long id, long amount) {
+        PointServiceValidator.validateAmount(amount);
+
         UserPoint userPoint = userPointTable.selectById(id);
+
+        PointServiceValidator.validateUserPoint(userPoint);
+
+        UserPoint userPointUpd = null;
 
         ReentrantLock lock = locks.computeIfAbsent(id, k -> new ReentrantLock());
         lock.lock(); // charge 와 use 동일한 lock 사용
 
+        long tempval = 0;
         try {
-            long tempval = userPoint.point()-amount;
+            tempval = userPoint.point()-amount < 0 ? userPoint.point() : userPoint.point()-amount;
 
-            tempval = userPoint.point()-amount < 0 ? userPoint.point() : userPoint.point()-amount; // 값 유지
-            userPoint = userPointTable.insertOrUpdate(id,tempval);
+            userPointUpd = userPointTable.insertOrUpdate(id, tempval);
+            if(userPoint.point()-amount >= 0) {
 
-            if(userPoint.point()-amount >= 0)
-                pointHistoryTable.insert(id,amount,TransactionType.USE,userPoint.updateMillis());
+                pointHistoryTable.insert(id,tempval,TransactionType.USE,userPoint.updateMillis());
+            }
         } finally {
             lock.unlock();
         }
-
-        return userPoint;
+        return new UserPoint(userPoint.id(), tempval,userPointUpd.updateMillis());
     }
-    static class PointServiceValidator {
-        public void nullValidator () {
 
+
+    static class PointServiceValidator {
+        public static void validateAmount(long amount) {
+            if (amount < 0) {
+                throw new IllegalArgumentException("Amount cannot be negative");
+            }
+        }
+
+        public static void validateUserPoint(UserPoint userPoint) {
+            if (userPoint == null) {
+                throw new RuntimeException("UserPoint cannot be null");
+            }
+        }
+
+        public static void validateUserPoint(List<PointHistory> pointHistories) {
+            if (pointHistories == null) {
+                throw new RuntimeException("UserPoint cannot be null");
+            }
         }
     }
 }
