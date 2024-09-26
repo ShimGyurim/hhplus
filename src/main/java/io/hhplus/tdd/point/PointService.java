@@ -23,20 +23,18 @@ public class PointService {
     private UserPointTable userPointTable;
 
     private final ConcurrentHashMap<Long, ReentrantLock> locks = new ConcurrentHashMap<>();
-
-
     //조회 point
     public UserPoint lookup(long id) {
         UserPoint userPoint = userPointTable.selectById(id);
         PointServiceValidator.validateUserPoint(userPoint);
+        System.out.println("test point: "+userPoint.point());
         return userPoint;
     }
     ///충전,사용내역조회 history
 
     public List<PointHistory> history(long id) {
         List<PointHistory> object = pointHistoryTable.selectAllByUserId(id);
-        if(object == null) throw new RuntimeException("객체가 없습니다.");
-        if(object.size() <= 0) throw new RuntimeException("리턴 데이터 없음");
+        PointServiceValidator.pointHisValidator(object);
         return object;
     }
     //충전
@@ -66,6 +64,8 @@ public class PointService {
 
         UserPoint userPoint = userPointTable.selectById(id);
 
+        PointServiceValidator.validatePointLimit(amount,userPoint);
+
         PointServiceValidator.validateUserPoint(userPoint);
 
         UserPoint userPointUpd = null;
@@ -92,7 +92,7 @@ public class PointService {
     static class PointServiceValidator {
         public static void validateAmount(long amount) {
             if (amount < 0) {
-                throw new IllegalArgumentException("Amount cannot be negative");
+                throw new IllegalArgumentException("사용/충전량은 음수 불가");
             }
         }
 
@@ -106,6 +106,14 @@ public class PointService {
             if (pointHistories == null) {
                 throw new RuntimeException("UserPoint cannot be null");
             }
+        }
+        public static void pointHisValidator(List<PointHistory> pointHistories){
+            if(pointHistories == null) throw new RuntimeException("객체가 없습니다.");
+            if(pointHistories.size() <= 0) throw new RuntimeException("리턴 데이터 없음");
+        }
+        public static void validatePointLimit(Long amount, UserPoint userPoint) {
+            if(amount > userPoint.point())
+            throw new RuntimeException("현재 잔액보다 사용량이 더 큼");
         }
     }
 }
