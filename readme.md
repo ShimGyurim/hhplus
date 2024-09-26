@@ -1,3 +1,5 @@
+## 동시성 문제 리포트
+
 1. 적용한 블로킹 기법 : ConcurrentHashMap 과 ReentrantLock 을 같이 적용 
 
 ```java
