@@ -49,9 +49,8 @@ public class TddIntegTest {
         Mockito.verify(userPointTable).selectById(userId);
     }
     @Test
-    @DisplayName("동시성 테스트 : 0에서 시작하여 100을 두개의 쓰레드로 각각 10번 loop : 결과 2000원 충전")
+    @DisplayName("동시성 통합 테스트 : 0에서 시작하여 100을 두개의 쓰레드로 각각 10번 loop : 결과 2000원 충전")
     public void concurrentChargeTest() throws InterruptedException {
-//        PointService pointService = new PointService();
 
         long userId = 1L;
 
@@ -74,7 +73,6 @@ public class TddIntegTest {
 
                 for (int j = 0; j < iterationCount; j++) {
                     UserPoint userPoint = pointService.charge(userId, 100L);
-//                    log.debug(userPoint+" 스레드"+threadNumber.get()+"의"+j+"번째"); // 예시: 사용자 ID 1, 충전 금액 100
                     latch.countDown();
                 }
             });
@@ -82,7 +80,6 @@ public class TddIntegTest {
 
         latch.await(); // 모든 스레드가 작업을 완료할 때까지 대기
         executorService.shutdown();
-//        System.out.println("test:"+pointService.lookup(1L));
         Assertions.assertEquals(pointService.lookup(userId).id(),userId);
         Assertions.assertEquals(pointService.lookup(userId).point(),2000);
     }
