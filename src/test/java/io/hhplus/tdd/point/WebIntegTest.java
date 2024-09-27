@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.List;
 
-//@WebMvcTest(PointController.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class WebIntegTest {
@@ -33,7 +32,6 @@ public class WebIntegTest {
     @MockBean
     private PointHistoryTable pointHistoryTable;
 
-    // ... (PointService 모의 설정 등)
     UserPoint initialUserPoint;
 
     @BeforeEach
@@ -74,7 +72,6 @@ public class WebIntegTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
-//                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(0))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1)) // 배열 길이가 1인지 확인
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].userId").value(1))
@@ -96,9 +93,8 @@ public class WebIntegTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.point").value(200));
-//                .andExpect(MockMvcResultMatchers.jsonPath("$.updateMillis").value(0));
     }
-//
+    
     @Test
     @DisplayName("사용 100원 확인")
     public void use_correct() throws Exception {
@@ -116,8 +112,5 @@ public class WebIntegTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.point").value(100));
-//                .andExpect(MockMvcResultMatchers.jsonPath("$.updateMillis").value(0));
     }
-
-
 }
