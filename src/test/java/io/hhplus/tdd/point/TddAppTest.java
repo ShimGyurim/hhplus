@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-//@SpringBootTest
+//단위테스트 모음 
 @ExtendWith(MockitoExtension.class)
 public class TddAppTest {
 
