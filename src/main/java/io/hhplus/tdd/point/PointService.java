@@ -31,7 +31,7 @@ public class PointService {
         return userPoint;
     }
     ///충전,사용내역조회 history
-
+    // PR : 단위테스트에서 검증 관련 
     public List<PointHistory> history(long id) {
         List<PointHistory> object = pointHistoryTable.selectAllByUserId(id);
         PointServiceValidator.pointHisValidator(object);
