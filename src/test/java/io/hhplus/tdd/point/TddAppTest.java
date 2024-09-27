@@ -103,7 +103,6 @@ public class TddAppTest {
         // When
         UserPoint actualUserPoint = pointService.charge(id, amount);
 
-//        System.out.println(expectedUserPoint.id());
         // Then
         Assertions.assertAll(
                 () -> Assertions.assertEquals(expectedUserPoint.id(), actualUserPoint.id()),
@@ -121,17 +120,9 @@ public class TddAppTest {
 
         UserPoint originUserPoint = new UserPoint(id, 100, 0);
         UserPoint expectedUserPoint = new UserPoint(id, 0, 0);
-//        Mockito.when(userPointTable.selectById(id)).thenReturn(originUserPoint);
-//        Mockito.when(userPointTable.insertOrUpdate(ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong())).thenReturn(expectedUserPoint);
-
-//        UserPoint actualUserPoint = pointService.charge(id, amount);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> pointService.charge(id, amount));
-//
-//        Assertions.assertEquals(expectedUserPoint.id(), actualUserPoint.id());
-//        Assertions.assertEquals(expectedUserPoint.point(), actualUserPoint.point());
 
-//        Mockito.verify(pointHistoryTable).insert(ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong(), ArgumentMatchers.eq(TransactionType.CHARGE), ArgumentMatchers.anyLong());
     }
 
     @Test
@@ -140,19 +131,13 @@ public class TddAppTest {
         // Given
         long id = 1L;
         long amount = -100L;
-//        UserPoint expectedUserPoint = new UserPoint(id, 100, 0);
-//        Mockito.when(userPointTable.selectById(id)).thenReturn(expectedUserPoint);
+
 
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> {
                     pointService.charge(id, amount);
                 });
-//        // When
-//        UserPoint actualUserPoint = pointService.charge(id, amount);
-//
-//        // Then
-//        Assertions.assertEquals(expectedUserPoint, actualUserPoint);
-//        Mockito.verify(pointHistoryTable, Mockito.never()).insert(ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong(), ArgumentMatchers.eq(TransactionType.CHARGE), ArgumentMatchers.anyLong());
+
     }
 
     @Test
@@ -161,19 +146,14 @@ public class TddAppTest {
         // Given
         long id = 1L;
         long amount = -100L;
-//        UserPoint expectedUserPoint = new UserPoint(id, 100, 0);
-//        Mockito.when(userPointTable.selectById(id)).thenReturn(expectedUserPoint);
 
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> {
                     pointService.use(id, amount);
                 });
 //        // When
-//        UserPoint actualUserPoint = pointService.charge(id, amount);
 //
 //        // Then
-//        Assertions.assertEquals(expectedUserPoint, actualUserPoint);
-//        Mockito.verify(pointHistoryTable, Mockito.never()).insert(ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong(), ArgumentMatchers.eq(TransactionType.CHARGE), ArgumentMatchers.anyLong());
     }
 
     @Test
@@ -184,23 +164,13 @@ public class TddAppTest {
         long amount = 200L;
 
         UserPoint originUserPoint = new UserPoint(id, 100, 0);
-//        UserPoint expectedUserPoint = new UserPoint(id, 200, 0);
         Mockito.when(userPointTable.selectById(id)).thenReturn(originUserPoint);
-//        Mockito.when(userPointTable.insertOrUpdate(ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong())).thenReturn(expectedUserPoint);
 
         // When
-//        UserPoint actualUserPoint = pointService.use(id, amount);
 
         Assertions.assertThrows(RuntimeException.class, () -> pointService.use(id, amount));
-//        System.out.println("test: "+actualUserPoint.point());
         // Then
-//        Assertions.assertEquals(expectedUserPoint.id(), actualUserPoint.id());
-//        Assertions.assertEquals(expectedUserPoint.point(),actualUserPoint.point());
-//        Mockito.verify(pointHistoryTable,
-//                Mockito.never()).insert(ArgumentMatchers.anyLong(),
-//                ArgumentMatchers.anyLong(),
-//                ArgumentMatchers.eq(TransactionType.USE),
-//                ArgumentMatchers.anyLong());
+
     }
 
     @Test
@@ -223,72 +193,6 @@ public class TddAppTest {
         Mockito.verify(pointHistoryTable).insert(ArgumentMatchers.anyLong(), ArgumentMatchers.anyLong(), ArgumentMatchers.eq(TransactionType.USE), ArgumentMatchers.anyLong());
     }
 
-//    @Test
-//    public void concurrentChargeTest() throws InterruptedException {
-//
-//        long id = 1L;
-//        long amount = 200L;
-//
-//        int threadCount = 2;
-//        int iterationCount = 10;
-//        int initialScore = 0;
-//
-//        UserPoint userPoint = new UserPoint(id,amount,0);
-//        Mockito.when(userPointTable.selectById(ArgumentMatchers.anyLong())).thenAnswer(invocation -> initialScore); //TODO : 나중에 확인
-//
-//        // 첫 호출 시 initialScore 반환
-//        initialScore += 10; // 다음 호출을 위한 initialScore 업데이트
-//
-//
-//        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-//        CountDownLatch latch = new CountDownLatch(threadCount * iterationCount);
-//
-//        AtomicInteger chargeCallCount = new AtomicInteger(0);
-//
-//        for (int i = 0; i < threadCount; i++) {
-//            executorService.submit(() -> {
-//                for (int j = 0; j < iterationCount; j++) {
-//                    pointService.charge(id, amount); // 예시: 사용자 ID 1, 충전 금액 100
-//                    chargeCallCount.incrementAndGet();
-//                    System.out.println("test:"+"" +"and"+ j);
-//                    latch.countDown();
-//                }
-//            });
-//        }
-//
-//        latch.await(); // 모든 스레드가 작업을 완료할 때까지 대기
-//        executorService.shutdown();
-//        int expectedChargeCallCount = threadCount * iterationCount;
-//        Assertions.assertEquals(expectedChargeCallCount, chargeCallCount.get());
-//    }
-
-//    @Test
-//    void threadTest() throws InterruptedException {
-////        SomethingCounter count = new SomethingCounter();
-//        Mockito.when(userPointTable.findById(1L)).thenReturn(Optional.of(expectedUser));
-//
-//        Thread thread = new Thread(() -> {
-//            System.out.println("thread >>>");
-//            for (int i = 0; i < 1000; i++) {
-//
-//            }
-//        });
-//        thread.start();
-//
-//        Thread thread2 = new Thread(() -> {
-//            System.out.println("thread >>>");
-//            for (int i = 0; i < 1000; i++) {
-//                count.count = count.count + 1;
-//            }
-//        });
-//        thread2.start();
-//
-//        thread.join();
-//        thread2.join();
-//
-//        count.printCount();
-//        Assertions.assertEquals(count.printCount(), 2000)
-//    }
 }
 
 
